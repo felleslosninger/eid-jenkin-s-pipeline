@@ -7,7 +7,8 @@ Git git
 Jira jira
 
 void script() {
-    echo "No more waiting for approval of other issues, closing issue..."
+    echo "Waiting for manuell testing/verification to finish (Waiting for statuses: Test OK systest or Manual verification failed)..."
+    if (!jira.waitUntilManuellTesterHasFinished()) return
     String fixVersions = jira.fixVersions()
     if (fixVersions && !fixVersions.contains(env.version)) {
         env.verification = 'false'

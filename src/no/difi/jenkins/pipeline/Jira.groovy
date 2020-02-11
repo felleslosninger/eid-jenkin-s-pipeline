@@ -254,6 +254,17 @@ private List<String> issuesToClose(def version, def repository) {
     }
 }
 
+boolean waitUntilManuellTesterHasFinished() {
+    echo "Waiting for issue status to change from 'Deploy to test'..."
+    Poll pollResponse = pollUntilIssueStatusIsNot(config.statuses.manualVerification)
+    if (pollResponse == null) return false
+    waitForCallback(pollResponse)
+    // Godkjenner saka dersom trykka proceed-knappen i jenkins
+    if (issueStatusIs(config.statuses.manualVerification))
+        changeIssueStatus config.transitions.approveManualVerification
+    assertIssueStatusIn([config.statuses.manualVerificationOk, config.statuses.manualVerificationFailed])
+}
+
 boolean waitUntilVerificationIsStarted() {
     echo "Waiting for issue status to change from 'ready for verification'..."
     Poll pollResponse = pollUntilIssueStatusIsNot(config.statuses.readyForVerification)
