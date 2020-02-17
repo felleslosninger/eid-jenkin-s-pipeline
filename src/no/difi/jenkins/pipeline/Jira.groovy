@@ -284,9 +284,10 @@ boolean waitUntilCodeReviewIsFinished() {
         changeIssueStatus config.transitions.approveCode
 }
 
-void failIfCodeNotApproved() {
-    if (!isCodeApproved())
-        error("Code was not approved")
+boolean failIfCodeNotApproved() {
+    if (!isCodeApproved()) {
+        return true
+    }
 }
 
 private boolean isCodeApproved() {
