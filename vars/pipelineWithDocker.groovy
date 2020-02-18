@@ -232,7 +232,7 @@ def call(body) {
                         }
                         steps {
                             script {
-                                components.integrateCode.script()
+                                components.integrateCode.script(params)
                             }
                         }
                         post {

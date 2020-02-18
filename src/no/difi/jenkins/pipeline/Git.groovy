@@ -96,6 +96,19 @@ void integrateCode() {
     }
 }
 
+void tagMaster(String version){
+    echo "Tagging master with version: ${version}"
+    fetchMasterFromOrigin()
+    sshagent([sshKey]) {
+        int status = sh returnStatus: true, script: "git checkout master && git tag ${version} && git push --tag"
+        if (status != 0) {
+            echo "Failed to tag master branch with tag ${version}."
+        }
+    }
+
+
+}
+
 boolean isIntegrated(String issueId) {
     fetchMasterFromOrigin()
     int status = sh(returnStatus: true, script: """#!/usr/bin/env bash    

@@ -10,14 +10,17 @@ Git git
 Docker dockerClient
 Maven maven
 
-void script() {
+void script(def params) {
     if (jira.failIfCodeNotApproved()) {
         env.errorMessage = "Sent back from code review. Developer: Fix it! :)"
         error "Code review rejected by reviewer"
     }
-
     jira.createAndSetFixVersion env.version
     git.integrateCode()
+    echo "Checking if should tag master..."
+    if(params.tagMaster){
+        git.tagMaster env.version
+    }
     git.deleteVerificationBranch()
 }
 
