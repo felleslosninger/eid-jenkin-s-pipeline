@@ -530,9 +530,6 @@ def call(body) {
                     script {
                         jira.close env.version, env.sourceCodeRepository
                         git.deleteWorkBranch()
-                        if (params.enableDependencyTrack) {
-                            dependencyTrack.deleteProject(env.JOB_NAME)
-                        }
                     }
                 }
             }

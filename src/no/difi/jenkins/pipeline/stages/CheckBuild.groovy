@@ -22,13 +22,15 @@ void script(def params) {
     jira.setSourceCodeRepository env.sourceCodeRepository
     jira.startWork()
     if (maven.isMavenProject()) {
-        if (params.enableDependencyTrack) {
+        if (!params.disableDependencyTrack) {
             dtProjectId = dependencyTrack.getProjectID(env.JOB_NAME)
             maven.cycloneDX()
             dependencyTrackPublisher artifact: 'target/bom.xml', artifactType: 'bom', projectId: dtProjectId, failedTotalCritical: 0, failedTotalHigh: 2, failedTotalLow: 20, failedTotalMedium: 10, synchronous: true
             if (currentBuild.result == "FAILURE") {
                 env.errorMessage = "DependencyTrack check failed, Vulnerability thresholds exceed"
+                error("DependencyTrack check failed")
             }
+            dependencyTrack.deleteProject(env.JOB_NAME)
         }
         maven.verify params.MAVEN_OPTS
         dockerClient.verify()
