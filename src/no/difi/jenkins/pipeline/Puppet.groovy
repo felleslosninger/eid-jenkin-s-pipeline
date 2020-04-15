@@ -58,7 +58,7 @@ private void updateHiera(version, modules) {
         git clone --branch=master git@eid-gitlab.dmz.local:puppet/puppet_hiera.git \${workDirectory}
         cd \${workDirectory}
         for module in ${modules}; do
-            sed -i "s/\\(\${module}::component_version:\\s\\).*/\\1\\"${version}\\"/i" \${platformFile}
+            sed -i "s/\\(^\${module}::component_version:\\s\\).*/\\1\\"${version}\\"/i" \${platformFile}
         done
         git add \${platformFile}
         git config --local user.name "\${gitUserName}"
@@ -195,23 +195,23 @@ private void commitRepo(def module,def version) {
 private void updateControl2(def version,def  modules) {
     println "Updating version of modules ${modules} to ${version}"
 
-
     sh """#!/usr/bin/env bash
 
     updateControl() {
         local gitUserName=\$(git config --get user.name)
         local gitEmail=\$(git config --get user.email)
-        local workDirectory=\$(mktemp -d /tmp/XXXXXXXXXXXX)
-        local puppetFile=Puppetfile
+        local workDirectory=\$(mktemp -d /tmp/XXXXXXXXXXXX)      
         git clone -b systest --single-branch git@eid-gitlab.dmz.local:puppet/puppet_control.git \${workDirectory}
         cd \${workDirectory}
         for module in ${modules}; do
-        sed -ie "s/\${module}-.*/\${module}-${version}.git'/" \${puppetFile}
+            grep -v "mod 'DIFI-${module}'" Puppetfile > Puppetfile_temp
+            echo "mod 'DIFI-${module}', :git => 'git@eid-gitlab.dmz.local:puppet_releases/${module}-${version}.git'" >> Puppetfile_temp
+            mv Puppetfile_temp Puppetfile
         done
-        git add \${puppetFile}
+        git add Puppetfile
         git config --local user.name "\${gitUserName}"
         git config --local user.email "\${gitEmail}"
-        git commit -m "${env.JOB_NAME} #${env.BUILD_NUMBER}: Updated version of modules ${modules} to ${version}" \${puppetFile}
+        git commit -m "${env.JOB_NAME} #${env.BUILD_NUMBER}: Updated version of modules ${modules} to ${version}" Puppetfile
         git push
         cd -
         rm -rf \${workDirectory}
