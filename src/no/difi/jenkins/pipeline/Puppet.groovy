@@ -204,8 +204,8 @@ private void updateControl2(def version,def  modules) {
         git clone -b systest --single-branch git@eid-gitlab.dmz.local:puppet/puppet_control.git \${workDirectory}
         cd \${workDirectory}
         for module in ${modules}; do
-            grep -v "mod 'DIFI-${module}'" Puppetfile > Puppetfile_temp
-            echo "mod 'DIFI-${module}', :git => 'git@eid-gitlab.dmz.local:puppet_releases/${module}-${version}.git'" >> Puppetfile_temp
+            grep -v "mod 'DIFI-\${module}'" Puppetfile > Puppetfile_temp
+            echo "mod 'DIFI-\${module}', :git => 'git@eid-gitlab.dmz.local:puppet_releases/\${module}-\${version}.git'" >> Puppetfile_temp
             mv Puppetfile_temp Puppetfile
         done
         git add Puppetfile
