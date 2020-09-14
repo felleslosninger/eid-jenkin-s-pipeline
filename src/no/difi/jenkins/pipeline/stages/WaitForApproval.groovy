@@ -7,8 +7,8 @@ Git git
 Jira jira
 
 void script() {
-    echo "Waiting for manuell testing/verification to finish (Waiting for statuses: Test OK systest or Manual verification failed)..."
-    if (!jira.waitUntilManuellTesterHasFinished()) return
+    echo "Waiting for manuell testing/verification to finish (Waiting for statuses: Test OK systest or Manual verification failed)... Do not wait for tech.tasks."
+    if (!jira.isTechTask() && !jira.waitUntilManuellTesterHasFinished()) return
     String fixVersions = jira.fixVersions()
     if (fixVersions && !fixVersions.contains(env.version)) {
         env.verification = 'false'

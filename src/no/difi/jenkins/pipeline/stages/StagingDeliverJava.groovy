@@ -24,6 +24,11 @@ void abortedScript(def params) {
 }
 
 private void cleanup(def params) {
+    if (jira.isTechTask()) {
+        env.errorMessage = "Is disk full on Artifactory? Technical task is closed directly by Jenkins without testing."
+    }else{
+        env.errorMessage = "Is disk full on Artifactory? Jira Admin has to close this issue manually since it has failed after integrated on master branch."
+    }
     jira.stagingFailed()
     maven.deletePublished params.stagingEnvironment, env.version
     git.deleteWorkBranch()

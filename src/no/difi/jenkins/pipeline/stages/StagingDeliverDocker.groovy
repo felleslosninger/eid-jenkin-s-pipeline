@@ -26,6 +26,11 @@ void abortedScript(def params) {
 }
 
 private void cleanup(def params) {
+    if (jira.isTechTask()) {
+        env.errorMessage = "Technical task is closed directly by Jenkins without testing."
+    }else{
+        env.errorMessage = "Jira Admin has to close this issue manually since it has failed after integrated on master branch."
+    }
     jira.stagingFailed()
     dockerClient.deletePublished params.stagingEnvironment, env.version
     if (maven.isMavenProject())

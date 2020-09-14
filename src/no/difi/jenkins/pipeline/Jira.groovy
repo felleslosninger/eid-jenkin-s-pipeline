@@ -56,7 +56,11 @@ void updateIssuesForManualVerification(def version, def repository) {
     }
     issuesWithStatus(config.statuses.manualVerificationFailed, repository).each { issueWithStatusToChange ->
         fixVersion issueWithStatusToChange, version
-        changeIssueStatus issueWithStatusToChange, config.transitions.retryManualVerificationFromFailure
+        if (isTechTask(issueWithStatusToChange)) {
+            changeIssueStatus issueWithStatusToChange, config.transitions.closeWithoutTesting
+        } else {
+            changeIssueStatus issueWithStatusToChange, config.transitions.retryManualVerificationFromFailure
+        }
     }
 }
 
@@ -153,6 +157,21 @@ static String issueStatus(Map issueFields) {
     issueFields['status']['id']
 }
 
+String issueType(Map issueFields) {
+    issueFields['issuetype']['id']
+}
+
+boolean isTechTask() {
+    isTechTask issueId()
+}
+
+boolean isTechTask(String issueId) {
+    // id=20: Story
+    // id=13: Technical Task Collection
+    // id=11: Defect Collection
+    issueType(issueFields(issueId)) == "13"
+}
+
 static String issueSummary(Map issueFields) {
     issueFields['summary'] ?: ""
 }
@@ -200,12 +219,20 @@ void startWork() {
 }
 
 void startManualVerification() {
-    changeIssueStatus config.transitions.startManualVerification
+    if (isTechTask()) {
+        addComment("Issue deployed successfully to systest, directly closed by Jenkins without testing since tech.task.")
+        changeIssueStatus config.transitions.closeWithoutStaging
+    } else {
+        changeIssueStatus config.transitions.startManualVerification
+    }
 }
 
 void stagingFailed() {
     changeIssueStatus config.statuses.manualVerification, config.transitions.failManualVerification
     changeIssueStatus config.statuses.codeApproved, config.transitions.failStagingDeploy
+    if (isTechTask()) {
+        changeIssueStatus config.statuses.manualVerificationFailed, config.transitions.closeWithoutTesting
+    }
 }
 
 void resumeWork() {
@@ -459,10 +486,10 @@ private Poll pollUntilIssueStatusIsNot(List<String> issueIds, def targetStatus) 
                 contentType: 'APPLICATION_JSON_UTF8',
                 requestBody: toJson(
                         [
-                                jiraAddress: config.url,
-                                callbackAddress: callbackAddress(callbackId),
+                                jiraAddress         : config.url,
+                                callbackAddress     : callbackAddress(callbackId),
                                 negativeTargetStatus: targetStatus,
-                                issues: issueIds
+                                issues              : issueIds
                         ]
                 )
         ).content
@@ -473,7 +500,8 @@ private Poll pollUntilIssueStatusIsNot(List<String> issueIds, def targetStatus) 
 }
 
 private String callbackId() {
-    UUID.randomUUID().toString().toUpperCase() // Upper-casing as a workaround because Jenkins upper-cases first letter of the id
+    UUID.randomUUID().toString().toUpperCase()
+    // Upper-casing as a workaround because Jenkins upper-cases first letter of the id
 }
 
 private String callbackAddress(String callbackId) {
