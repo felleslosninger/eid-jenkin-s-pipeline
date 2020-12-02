@@ -15,7 +15,8 @@ Maven maven
 void script(def params) {
     git.checkoutVerificationBranch()
     if (maven.verificationTestsSupported(params.verificationEnvironment)) {
-        VerificationTestResult result = maven.runVerificationTests params.verificationEnvironment, env.stackName
+        boolean isCodeceptTests = maven.isCodeceptTests();
+        VerificationTestResult result = maven.runVerificationTests params.verificationEnvironment, env.stackName, !isCodeceptTests
         jira.addComment(
                 "Verifikasjonstester utført: [Rapport|${result.reportUrl()}] og [byggstatus|${env.BUILD_URL}]",
         )
