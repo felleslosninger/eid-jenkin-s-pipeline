@@ -138,7 +138,7 @@ VerificationTestResult runVerificationTests(def environmentId, def stackName) {
         -Didporten-authorization-apiurl=http://${host}:${servicePorts.get('idporten-authorization-api')}\
         -Doppslagstjenesten-resturl=http://${host}:${servicePorts.get('oppslagstjenesten-rest')}\
         -DdatabaseUrl=${host}:${servicePorts.get('database')}\
-        -DidportenOidcClientUrl=${host}:${servicePorts.get('idporten-oidc-client')}/idporten-oidc-client/
+        -DidportenOidcClientUrl=http://${host}:${servicePorts.get('idporten-oidc-client')}/idporten-oidc-client/
     """
     cucumber 'system-tests/target/*.json'
     new VerificationTestResult(
