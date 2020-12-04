@@ -31,9 +31,11 @@ void script(def params) {
     }
 
     if (dockerClient.codeceptTestsSupported(params.verificationEnvironment)) {
-        String url= dockerClient.runCodeceptVerificationTests params.verificationEnvironment, env.stackName
-        junit allowEmptyResults: true, healthScaleFactor: 0.0, testResults: "${WORKSPACE}/codecept-tests/output/results.xml"
-        publishHTML([allowMissing: true, alwaysLinkToLastBuild: false, keepAll: false, reportDir: "${WORKSPACE}/codecept-tests/output", reportFiles: 'results.html', reportName: 'Codecept Tests', reportTitles: '', includes: '*/**'])
+        String url= dockerClient.runCodeceptVerificationTests params.verificationEnvironment, env.stackName, env.version
+        httpRequest outputFile: 'codecepttest/results.xml', responseHandle: 'NONE', url: "http://${url}/output/results.xml"
+        junit allowEmptyResults: true, healthScaleFactor: 0.0, testResults: 'codecepttest/results.xml'
+        httpRequest outputFile: 'codecepttest/results.html', responseHandle: 'NONE', url: "http://${url}/output/results.html"
+        publishHTML([allowMissing: true, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'codecepttest', reportFiles: 'results.html', reportName: 'Codecept Tests', reportTitles: '', includes: '*/**'])
     }
 
 }

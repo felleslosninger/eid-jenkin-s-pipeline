@@ -83,7 +83,7 @@ String runAPIVerificationTests(def environmentId, def stackName){
     return host+":"+port
 }
 
-String runCodeceptVerificationTests(def environmentId, def stackName){
+String runCodeceptVerificationTests(def environmentId, def stackName, def version){
     String dockerHostFile = newDockerHostFile()
     String dockerHost = dockerHost dockerHostFile
     String sshKey = environments.dockerSwarmSshKey(environmentId)
@@ -96,6 +96,7 @@ String runCodeceptVerificationTests(def environmentId, def stackName){
         export DOCKER_TLS_VERIFY=
         export DOCKER_HOST=${dockerHost}
         export REGISTRY=${registryAddress}
+        export VERSION=${version}
         rc=1
         docker stack deploy -c docker/stack-codecept-tests.yml ${stackName} || { >&2 echo "Failed to deploy stack-codecept-tests"; exit 1; }
 #        output=""
@@ -112,12 +113,10 @@ String runCodeceptVerificationTests(def environmentId, def stackName){
         echo "ls . : `ls -l`"
         echo "ls codecept-tests : `ls -l codecept-tests`"
         echo "docker service ps 1: `docker service ps --no-trunc ${stackName}_codeceptjs`"
-        sleep 30
-        echo "docker service ps 2: `docker service ps --no-trunc ${stackName}_codeceptjs`"
-        sleep 600
+        sleep 180
         echo "docker logs: `docker service logs ${stackName}_codeceptjs`"
         echo "ls codecept-tests/output: `ls -l codecept-tests/output`"
-        echo "docker service ps 3: `docker service ps --no-trunc ${stackName}_codeceptjs`"
+        echo "docker service ps 2: `docker service ps --no-trunc ${stackName}_codeceptjs`"
         echo "Exiting with status \${rc}"
         exit \${rc}
         """
