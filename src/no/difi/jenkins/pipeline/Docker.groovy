@@ -98,15 +98,22 @@ String runCodeceptVerificationTests(def environmentId, def stackName){
         export REGISTRY=${registryAddress}
         rc=1
         docker stack deploy -c docker/stack-codecept-tests.yml ${stackName} || { >&2 echo "Failed to deploy stack-codecept-tests"; exit 1; }
-        output=""
-        for i in \$(seq 1 100); do
-            sleep 5
-            output=\$(docker service logs ${stackName}_codeceptjs --tail 1) || { rc=1; >&2 echo "Failed to get log: \${output}"; break; }
-            [[ -z "\${output}" ]] && { echo "No log available"; continue; }
-            echo "\${output}" | grep -v 'Hit CTRL-C to stop the server' || { rc=0; echo "Codecept Tests finished"; break; }
-            echo "Codecept Tests not finished"
-        done
-        echo "\${output}"
+#        output=""
+#        for i in \$(seq 1 100); do
+#            sleep 5
+#            output=\$(docker service logs ${stackName}_codeceptjs --tail 1) || { rc=1; >&2 echo "Failed to get log: \${output}"; break; }
+#            [[ -z "\${output}" ]] && { echo "No log available"; continue; }
+#            echo "\${output}" | grep -v 'Hit CTRL-C to stop the server' || { rc=0; echo "Codecept Tests finished"; break; }
+#            echo "Codecept Tests not finished"
+#        done
+        echo "stackName: ${stackName}"
+        echo "services in stack: `docker stack services ${stackName}`"
+        echo "pwd: `pwd`"
+        echo "ls . : `ls -l`"
+        echo "ls codecept-tests : `ls -l codecept-tests`"
+        sleep 100
+        echo "docker logs: `docker service logs ${stackName}_codeceptjs`"
+        echo "ls codecept-tests/output: `ls -l codecept-tests/output`"
         echo "Exiting with status \${rc}"
         exit \${rc}
         """
