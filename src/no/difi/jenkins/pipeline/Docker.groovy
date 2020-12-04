@@ -109,6 +109,10 @@ String runCodeceptVerificationTests(def environmentId, def stackName, def versio
         echo "Exiting with status \${rc}"
         exit \${rc}
         """
+
+        port = sh(returnStdout: true, script: "DOCKER_TLS_VERIFY= DOCKER_HOST=${dockerHost} docker service inspect --format='{{with index .Endpoint.Ports 0}}{{.PublishedPort}}{{end}}' ${stackName}_codeceptjs").trim()
+        sh "rm ${dockerHostFile}"
+        return host+":"+port
     }
 }
 
