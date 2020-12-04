@@ -98,13 +98,14 @@ String runCodeceptVerificationTests(def environmentId, def stackName){
         export REGISTRY=${registryAddress}
         rc=1
         docker stack deploy -c docker/stack-codecept-tests.yml ${stackName} || { >&2 echo "Failed to deploy stack-codecept-tests"; exit 1; }
-        for i in \$(seq 1 300); do
+        for i in \$(seq 1 100); do
             sleep 5
             output=\$(docker service logs ${stackName}_codeceptjs --tail 1) || { rc=1; >&2 echo "Failed to get log: \${output}"; break; }
             [[ -z "\${output}" ]] && { echo "No log available"; continue; }
             echo "\${output}" | grep -v 'Hit CTRL-C to stop the server' || { rc=0; echo "Codecept Tests finished"; break; }
             echo "Codecept Tests not finished"
         done
+        echo "\${output}"
         echo "Exiting with status \${rc}"
         exit \${rc}
         """
