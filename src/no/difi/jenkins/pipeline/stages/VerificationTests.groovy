@@ -15,8 +15,7 @@ Maven maven
 void script(def params) {
     git.checkoutVerificationBranch()
     if (maven.verificationTestsSupported(params.verificationEnvironment)) {
-        boolean isCodeceptTests = maven.isCodeceptTests();
-        VerificationTestResult result = maven.runVerificationTests params.verificationEnvironment, env.stackName, !isCodeceptTests
+        VerificationTestResult result = maven.runVerificationTests params.verificationEnvironment, env.stackName
         jira.addComment(
                 "Verifikasjonstester utført: [Rapport|${result.reportUrl()}] og [byggstatus|${env.BUILD_URL}]",
         )
@@ -30,6 +29,13 @@ void script(def params) {
         httpRequest outputFile: 'apitest/results.html', responseHandle: 'NONE', url: "http://${url}/results.html"
         publishHTML([allowMissing: true, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'apitest', reportFiles: 'results.html', reportName: 'Api Tests', reportTitles: ''])
     }
+
+    if (dockerClient.codeceptTestsSupported(params.verificationEnvironment)) {
+        String url= dockerClient.runCodeceptVerificationTests params.verificationEnvironment, env.stackName
+        junit allowEmptyResults: true, healthScaleFactor: 0.0, testResults: "${WORKSPACE}/codecept-tests/output/results.xml"
+        publishHTML([allowMissing: true, alwaysLinkToLastBuild: false, keepAll: false, reportDir: "${WORKSPACE}/codecept-tests/output", reportFiles: 'results.html', reportName: 'Codecept Tests', reportTitles: '', includes: '*/**'])
+    }
+
 }
 
 void failureScript(def params) {

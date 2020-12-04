@@ -83,6 +83,34 @@ String runAPIVerificationTests(def environmentId, def stackName){
     return host+":"+port
 }
 
+String runCodeceptVerificationTests(def environmentId, def stackName){
+    String dockerHostFile = newDockerHostFile()
+    String dockerHost = dockerHost dockerHostFile
+    String sshKey = environments.dockerSwarmSshKey(environmentId)
+    String user = environments.dockerSwarmUser(environmentId)
+    String host = environments.dockerSwarmHost(environmentId)
+    String registryAddress = environments.dockerRegistryAddress(environmentId)
+    setupSshTunnel(sshKey, dockerHostFile, user, host)
+    if (fileExists("${WORKSPACE}/docker/stack-codecept-tests.yml")) {
+        sh """#!/usr/bin/env bash
+        export DOCKER_TLS_VERIFY=
+        export DOCKER_HOST=${dockerHost}
+        export REGISTRY=${registryAddress}
+        rc=1
+        docker stack deploy -c docker/stack-codecept-tests.yml ${stackName} || { >&2 echo "Failed to deploy stack-codecept-tests"; exit 1; }
+        for i in \$(seq 1 300); do
+            sleep 5
+            output=\$(docker service logs ${stackName}_codeceptjs --tail 1) || { rc=1; >&2 echo "Failed to get log: \${output}"; break; }
+            [[ -z "\${output}" ]] && { echo "No log available"; continue; }
+            echo "\${output}" | grep -v 'Hit CTRL-C to stop the server' || { rc=0; echo "Codecept Tests finished"; break; }
+            echo "Codecept Tests not finished"
+        done
+        echo "Exiting with status \${rc}"
+        exit \${rc}
+        """
+    }
+}
+
 void removeStack(def environmentId, def stackName) {
     if (!environments.isDockerDeploySupported(environmentId)) {
         echo "No Docker stack to remove"
@@ -325,6 +353,20 @@ boolean apiTestsSupported(def environmentId) {
     int status = sh(returnStatus: true, script: "[ -e ${WORKSPACE}/docker/stack-api-tests.yml ]")
     if (status != 0){
         echo "Verification tests are not supported (no /docker/stack-api-tests.yml)"
+        return false
+    }
+
+    true
+}
+
+boolean codeceptTestsSupported(def environmentId) {
+    if (!environments.isDockerDeploySupported(environmentId)) {
+        echo "No Docker swarm defined for environment '${environmentId}' -- skipping tests"
+        return false
+    }
+    int status = sh(returnStatus: true, script: "[ -e ${WORKSPACE}/docker/stack-codecept-tests.yml ]")
+    if (status != 0){
+        echo "Verification tests are not supported (no /docker/stack-codecept-tests.yml)"
         return false
     }
 

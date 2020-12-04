@@ -121,12 +121,7 @@ boolean verificationTestsSupported(def environmentId) {
     true
 }
 
-boolean isCodeceptTests() {
-    int status = sh(returnStatus: true, script: "[ -e ${WORKSPACE}/system-tests/codecept.conf.js ]")
-    return status == 0
-}
-
-VerificationTestResult runVerificationTests(def environmentId, def stackName, def generateCucumberReport) {
+VerificationTestResult runVerificationTests(def environmentId, def stackName) {
 
     String host = environments.dockerSwarmHost(environmentId)
     Map servicePorts = docker.servicePorts(environmentId, stackName)
@@ -145,10 +140,7 @@ VerificationTestResult runVerificationTests(def environmentId, def stackName, de
         -DdatabaseUrl=${host}:${servicePorts.get('database')}\
         -DidportenOidcClientUrl=http://${host}:${servicePorts.get('idporten-oidc-client')}/idporten-oidc-client/
     """
-    if(generateCucumberReport) {
-        cucumber 'system-tests/target/*.json'
-    }
-
+    cucumber 'system-tests/target/*.json'
     new VerificationTestResult(
             success: status == 0,
             reportUrl: "${env.BUILD_URL}cucumber-html-reports/overview-features.html"
