@@ -98,6 +98,7 @@ String runCodeceptVerificationTests(def environmentId, def stackName){
         export REGISTRY=${registryAddress}
         rc=1
         docker stack deploy -c docker/stack-codecept-tests.yml ${stackName} || { >&2 echo "Failed to deploy stack-codecept-tests"; exit 1; }
+        output=""
         for i in \$(seq 1 100); do
             sleep 5
             output=\$(docker service logs ${stackName}_codeceptjs --tail 1) || { rc=1; >&2 echo "Failed to get log: \${output}"; break; }
