@@ -111,9 +111,13 @@ String runCodeceptVerificationTests(def environmentId, def stackName){
         echo "pwd: `pwd`"
         echo "ls . : `ls -l`"
         echo "ls codecept-tests : `ls -l codecept-tests`"
-        sleep 100
+        echo "docker service ps 1: `docker service ps --no-trunc ${stackName}_codeceptjs`"
+        sleep 30
+        echo "docker service ps 2: `docker service ps --no-trunc ${stackName}_codeceptjs`"
+        sleep 600
         echo "docker logs: `docker service logs ${stackName}_codeceptjs`"
         echo "ls codecept-tests/output: `ls -l codecept-tests/output`"
+        echo "docker service ps 3: `docker service ps --no-trunc ${stackName}_codeceptjs`"
         echo "Exiting with status \${rc}"
         exit \${rc}
         """
