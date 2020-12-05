@@ -41,8 +41,8 @@ void script(def params) {
         sh(returnStdout: false, script: "echo 'HTML codeceptjs report files: '; ls -l codecepttest")
         publishHTML(target: [
                 allowMissing: true,
-                alwaysLinkToLastBuild: false,
-                keepAll: false,
+                alwaysLinkToLastBuild: true,
+                keepAll: true,
                 reportDir: 'codecepttest',
                 reportFiles: 'results.html',
                 reportName: 'Codecept Tests',
