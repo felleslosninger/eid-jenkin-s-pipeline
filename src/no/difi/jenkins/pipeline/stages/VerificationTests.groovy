@@ -33,17 +33,25 @@ void script(def params) {
     if (dockerClient.codeceptTestsSupported(params.verificationEnvironment)) {
         String url= dockerClient.runCodeceptVerificationTests params.verificationEnvironment, env.stackName, env.version
 
-        httpRequest outputFile: 'codecepttest/results.xml', responseHandle: 'NONE', url: "http://${url}/output/results.xml"
-        junit allowEmptyResults: true, healthScaleFactor: 0.0, testResults: 'codecepttest/results.xml'
-
         httpRequest outputFile: 'codecepttest/results.html', responseHandle: 'NONE', url: "http://${url}/output/results.html"
-
         def screenshots = sh(script: "grep -oP '[^;]([a-zA-Z0-9._-]*\\.png)' codecepttest/results.html", returnStdout: true).trim().split('\n')
         for (String screenshot : screenshots) {
             httpRequest outputFile: "codecepttest/${screenshot}", responseHandle: 'NONE', url: "http://${url}/output/${screenshot}"
         }
+        sh(returnStdout: false, script: "echo 'HTML codeceptjs report files: '; ls -l codecepttest")
+        publishHTML(target: [
+                allowMissing: true,
+                alwaysLinkToLastBuild: false,
+                keepAll: false,
+                reportDir: 'codecepttest',
+                reportFiles: 'results.html',
+                reportName: 'Codecept Tests',
+                reportTitles: 'Verification Report',
+                includes: '*/**'
+        ])
 
-        publishHTML([allowMissing: true, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'codecepttest', reportFiles: 'results.html', reportName: 'Codecept Tests', reportTitles: '', includes: '*/**'])
+        httpRequest outputFile: 'codecepttest/results.xml', responseHandle: 'NONE', url: "http://${url}/output/results.xml"
+        junit allowEmptyResults: true, healthScaleFactor: 0.0, testResults: 'codecepttest/results.xml', testDataPublishers: [[$class: 'AttachmentPublisher']]
 
     }
 
