@@ -38,7 +38,7 @@ void script(def params) {
         for (String screenshot : screenshots) {
             httpRequest outputFile: "codecepttest/${screenshot}", responseHandle: 'NONE', url: "http://${url}/output/${screenshot}"
         }
-        sh(returnStdout: false, script: "echo 'HTML codeceptjs report files: '; ls -l codecepttest")
+
         publishHTML(target: [
                 allowMissing: true,
                 alwaysLinkToLastBuild: true,
@@ -51,8 +51,8 @@ void script(def params) {
         ])
 
         httpRequest outputFile: 'codecepttest/results.xml', responseHandle: 'NONE', url: "http://${url}/output/results.xml"
-        junit allowEmptyResults: true, healthScaleFactor: 0.0, testResults: 'codecepttest/results.xml', testDataPublishers: [[$class: 'AttachmentPublisher']]
-
+        junit allowEmptyResults: true, healthScaleFactor: 0.0, testResults: 'codecepttest/results.xml' /* , testDataPublishers: [[$class: 'AttachmentPublisher']] */
+        // https://plugins.jenkins.io/junit-attachments/#documentation
     }
 
 }
