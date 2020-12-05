@@ -37,11 +37,12 @@ void script(def params) {
         junit allowEmptyResults: true, healthScaleFactor: 0.0, testResults: 'codecepttest/results.xml'
 
         httpRequest outputFile: 'codecepttest/results.html', responseHandle: 'NONE', url: "http://${url}/output/results.html"
-        sh """#!/usr/bin/env bash        
-        for screenshotfile in `grep -oP '[^;]([a-zA-Z0-9._-]*\\\\.png)' codecepttest/results.html`; do
-        httpRequest outputFile: 'codecepttest/\${screenshotfile}', responseHandle: 'NONE', url: "http://${url}/output/\${screenshotfile}"
-        done
-        """
+
+        def screenshots = sh(script: "grep -oP '[^;]([a-zA-Z0-9._-]*\\.png)' codecepttest/results.html", returnStdout: true).trim().split('\n')
+        for (String screenshot : screenshots) {
+            httpRequest outputFile: "codecepttest/${screenshot}", responseHandle: 'NONE', url: "http://${url}/output/${screenshot}"
+        }
+
         publishHTML([allowMissing: true, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'codecepttest', reportFiles: 'results.html', reportName: 'Codecept Tests', reportTitles: '', includes: '*/**'])
 
     }
