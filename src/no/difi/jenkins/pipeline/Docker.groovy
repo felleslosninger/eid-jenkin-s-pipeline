@@ -75,6 +75,7 @@ String runAPIVerificationTests(def environmentId, def stackName){
             echo "Api Tests not finished"
         done
         echo "Exiting with status \${rc}"
+        echo "docker service ps: `docker service ps --no-trunc ${stackName}_codeceptjs`"
         exit \${rc}
         """
     }
