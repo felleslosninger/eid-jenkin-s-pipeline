@@ -108,6 +108,7 @@ String runCodeceptVerificationTests(def environmentId, def stackName, def versio
             echo "Codecept Tests not finished"
         done
         echo "Exiting with status \${rc}"
+        echo "docker service ps --no-trunc ${stackName}_codeceptjs"
         exit \${rc}
         """
     }
