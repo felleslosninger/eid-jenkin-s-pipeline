@@ -34,7 +34,7 @@ void script(def params) {
         String url= dockerClient.runCodeceptVerificationTests params.verificationEnvironment, env.stackName, env.version
 
         httpRequest outputFile: 'codecepttest/results.html', responseHandle: 'NONE', url: "http://${url}/output/results.html"
-        def screenshots = sh(script: "grep -oP '[^;]([a-zA-Z0-9._-]*\\.png)' codecepttest/results.html", returnStdout: true).trim().split('\n')
+        def screenshots = sh(script: "grep -oP '[^;]([a-zA-Z0-9._-]*\\.png)' codecepttest/results.html || true", returnStdout: true).trim().split('\n')
         for (String screenshot : screenshots) {
             httpRequest outputFile: "codecepttest/${screenshot}", responseHandle: 'NONE', url: "http://${url}/output/${screenshot}"
         }
