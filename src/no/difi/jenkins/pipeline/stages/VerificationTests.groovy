@@ -35,8 +35,10 @@ void script(def params) {
 
         httpRequest outputFile: 'codecepttest/results.html', responseHandle: 'NONE', url: "http://${url}/output/results.html"
         def screenshots = sh(script: "grep -oP '[^;]([a-zA-Z0-9._-]*\\.png)' codecepttest/results.html || true", returnStdout: true).trim().split('\n')
-        for (String screenshot : screenshots) {
-            httpRequest outputFile: "codecepttest/${screenshot}", responseHandle: 'NONE', url: "http://${url}/output/${screenshot}"
+        if(screenshots) {
+            for (String screenshot : screenshots) {
+                httpRequest outputFile: "codecepttest/${screenshot}", responseHandle: 'NONE', url: "http://${url}/output/${screenshot}"
+            }
         }
 
         publishHTML(target: [
