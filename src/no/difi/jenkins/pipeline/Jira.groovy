@@ -393,7 +393,7 @@ private void waitForCallback(Poll poll) {
 private void deletePollJob(String pollId) {
     try {
         httpRequest(
-                url: "http://polling-agent/jiraStatusPolls/${pollId}",
+                url: "http://polling-agent:8080/jiraStatusPolls/${pollId}",
                 httpMode: 'DELETE'
         )
     } catch (e) {
@@ -513,7 +513,7 @@ private String internalBuildUrl() {
 }
 
 private static String pollingAgentUrl() {
-    'http://polling-agent/jiraStatusPolls'
+    'http://polling-agent:8080/jiraStatusPolls'
 }
 
 void addFailureComment() {
