@@ -12,11 +12,10 @@ def call(body) {
     Git git = components.git
     DependencyTrack dependencyTrack = components.dependencyTrack
     String agentImage = 'difi/jenkins-agent'
-    String agentArgs = '--mount type=volume,src=pipeline-maven-repo-cache,dst=/root/.m2/repository ' +
+    String agentArgs = '--mount type=volume,src=pipeline-maven-repo-cache,dst=/jenkins-agent/.m2/repository ' +
             '--network pipeline_pipeline ' +
             '-v /var/run/docker.sock:/var/run/docker.sock ' +
-            '--mount type=volume,src=jenkins-ssh-settings,dst=/etc/ssh ' +
-            '-u root:root'
+            '--mount type=volume,src=jenkins-ssh-settings,dst=/etc/ssh '
     Map params = [:]
     params.parallelMavenDeploy = true
     params.stagingQueue = false
@@ -29,10 +28,6 @@ def call(body) {
     if (!params.stagingQueue) {
         stagingLock += "-${BRANCH_NAME}"
     }
-    if (params.javaVersion == 9)
-        agentImage = 'difi/jenkins-agent-java9'
-    if (params.javaVersion == 10)
-        agentImage = 'difi/jenkins-agent-java10'
     if (params.javaVersion == 11)
         agentImage = 'difi/jenkins-agent-java11'
     node() {
