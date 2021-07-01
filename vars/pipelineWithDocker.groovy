@@ -10,8 +10,7 @@ def call(body) {
     String agentImage = 'difi/jenkins-agent'
     String agentArgs = '--network pipeline_pipeline ' +
             '-v /var/run/docker.sock:/var/run/docker.sock ' +
-            '--mount type=volume,src=jenkins-ssh-settings,dst=/etc/ssh ' +
-            '-u root:root'
+            '--mount type=volume,src=jenkins-ssh-settings,dst=/etc/ssh '
     Map params = [:]
     params.stagingQueue = false
     body.resolveStrategy = Closure.DELEGATE_FIRST
