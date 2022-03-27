@@ -23,8 +23,8 @@ void script(def params) {
     currentBuild.description = "{\"version\":\"${env.version}\",\"commit\":\"${commitId.take(7)}\",\"issue\":\"${issueId}\"}"
     git.resetVerificationBranchToOrigin() // In case there was an existing local branch from previous build
     String repositoryName = git.repositoryName()
-    crucible.synchronize env.CRUCIBLE_URL, repositoryName, env.crucible_USR, env.crucible_PSW
-    crucible.createReview commitId, issueSummary, issueId, env.CRUCIBLE_URL, repositoryName, env.CRUCIBLE_PROJECT_KEY, env.crucible_USR, env.crucible_PSW
+    //crucible.synchronize env.CRUCIBLE_URL, repositoryName, env.crucible_USR, env.crucible_PSW
+    //crucible.createReview commitId, issueSummary, issueId, env.CRUCIBLE_URL, repositoryName, env.CRUCIBLE_PROJECT_KEY, env.crucible_USR, env.crucible_PSW
 }
 
 void failureScript(def params) {
