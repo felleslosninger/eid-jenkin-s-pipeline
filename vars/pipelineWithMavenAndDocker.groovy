@@ -129,20 +129,18 @@ def call(body) {
                         steps {
                             script {
                                 echo 'Fisheye is disabled, create review as Github Pull Request'
-                                //components.prepareVerification.script(params)
+                                components.prepareVerification.script(params)
                             }
                         }
                         post {
                             failure {
                                 script {
-                                    echo 'Failure: Fisheye is disabled, create review as Github Pull Request'
-                                  //  components.prepareVerification.failureScript(params)
+                                    components.prepareVerification.failureScript(params)
                                 }
                             }
                             aborted {
                                 script {
-                                    echo 'Aborted: Fisheye is disabled, create review as Github Pull Request'
-                                    //components.prepareVerification.abortedScript(params)
+                                    components.prepareVerification.abortedScript(params)
                                 }
                             }
                         }
